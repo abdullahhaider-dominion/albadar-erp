@@ -24,11 +24,11 @@ class SecurityHeaders
                 "base-uri 'self'",
                 "form-action 'self'",
                 "frame-ancestors 'self'",
-                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com",
                 "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
-                "font-src 'self' https://fonts.gstatic.com data:",
+                "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com data:",
                 "img-src 'self' data:",
-                "connect-src 'self'",
+                "connect-src 'self' https://cdn.jsdelivr.net https://static.cloudflareinsights.com",
                 "object-src 'none'",
             ]));
         }
