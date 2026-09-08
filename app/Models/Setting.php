@@ -31,6 +31,6 @@ class Setting extends Model
 
     public static function companyName(): string
     {
-        return (string) static::get('company_name', 'Roznamcha ERP');
+        return (string) static::get('company_name', 'Al Badar');
     }
 }

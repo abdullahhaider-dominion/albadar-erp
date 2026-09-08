@@ -14,11 +14,20 @@
 
 * { box-sizing: border-box; }
 
+html, body {
+    overflow-x: hidden;
+}
+
 body {
-    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
     background: var(--rz-bg);
     color: var(--rz-text);
     min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, .fw-semibold, .brand-title {
+    font-weight: 600;
 }
 
 .app-shell { display: flex; min-height: 100vh; }
@@ -36,19 +45,43 @@ body {
 }
 
 .sidebar-brand {
-    padding: 1.25rem 1.25rem 1rem;
+    padding: 1.15rem 1.15rem 1rem;
     border-bottom: 1px solid rgba(255,255,255,.08);
+    text-align: center;
+}
+
+.brand-logo {
+    max-height: 56px;
+    width: auto;
+    max-width: 160px;
+    object-fit: contain;
+    margin-bottom: .5rem;
+    background: #fff;
+    border-radius: .4rem;
+    padding: .25rem .4rem;
+}
+
+.brand-logo-login {
+    max-height: 72px;
+    max-width: 180px;
+    margin-bottom: .75rem;
+}
+
+.brand-logo-top {
+    max-height: 36px;
+    margin-bottom: 0;
+    padding: .1rem .25rem;
 }
 
 .sidebar-brand .brand-title {
-    font-size: 1.15rem;
-    font-weight: 700;
+    font-size: 1.05rem;
     color: #fff;
     letter-spacing: .02em;
 }
 
 .sidebar-brand .brand-sub {
-    font-size: .75rem;
+    font-size: .72rem;
+    font-weight: 400;
     color: #94a3b8;
     margin-top: .15rem;
 }
@@ -56,12 +89,14 @@ body {
 .sidebar .nav-link {
     color: #cbd5e1;
     border-radius: .5rem;
-    padding: .55rem .85rem;
+    padding: .65rem .85rem;
     margin: .15rem .75rem;
-    font-size: .92rem;
+    font-size: .9rem;
+    font-weight: 500;
     display: flex;
     align-items: center;
     gap: .55rem;
+    min-height: 44px;
 }
 
 .sidebar .nav-link:hover,
@@ -84,29 +119,43 @@ body {
 .topbar {
     background: #fff;
     border-bottom: 1px solid #e2e8f0;
-    padding: .85rem 1.25rem;
+    padding: .75rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: .75rem;
     position: sticky;
     top: 0;
     z-index: 1020;
 }
 
-.content { padding: 1.25rem; }
+.content { padding: 1rem; flex: 1; }
+
+.app-footer {
+    padding: .75rem 1rem 1rem;
+    text-align: center;
+}
+
+.footer-credit {
+    color: #64748b;
+    font-size: .8rem;
+    text-decoration: none;
+}
+
+.footer-credit:hover { color: var(--rz-accent); text-decoration: underline; }
 
 .stat-card {
     background: var(--rz-card);
     border: 1px solid #e2e8f0;
     border-radius: .85rem;
-    padding: 1.1rem 1.25rem;
+    padding: 1rem 1.1rem;
     height: 100%;
     box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
 }
 
 .stat-card .label {
-    font-size: .8rem;
+    font-size: .75rem;
+    font-weight: 500;
     color: var(--rz-muted);
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -114,9 +163,10 @@ body {
 }
 
 .stat-card .value {
-    font-size: 1.55rem;
-    font-weight: 700;
-    line-height: 1.2;
+    font-size: clamp(1.15rem, 4vw, 1.55rem);
+    font-weight: 600;
+    line-height: 1.25;
+    word-break: break-word;
 }
 
 .stat-card.income .value { color: var(--rz-income); }
@@ -144,16 +194,33 @@ body {
 
 .badge-income { background: #d1fae5; color: #065f46; }
 .badge-expense { background: #fee2e2; color: #991b1b; }
+.badge-edited {
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 500;
+    font-size: .7rem;
+    vertical-align: middle;
+    cursor: pointer;
+}
 
 .amount-pos { color: var(--rz-income); font-weight: 600; }
 .amount-neg { color: var(--rz-expense); font-weight: 600; }
+
+.btn, .form-control, .form-select {
+    min-height: 42px;
+}
+
+.btn-sm { min-height: 36px; }
 
 .btn-accent {
     background: var(--rz-accent);
     border-color: var(--rz-accent);
     color: #fff;
+    font-weight: 500;
 }
 .btn-accent:hover { background: var(--rz-accent-dark); border-color: var(--rz-accent-dark); color: #fff; }
+
+.amount-input { font-size: 1.15rem; font-weight: 500; }
 
 .filters-bar .form-select,
 .filters-bar .form-control { font-size: .9rem; }
@@ -166,7 +233,7 @@ body {
     background:
         radial-gradient(circle at top right, rgba(13,148,136,.18), transparent 40%),
         linear-gradient(160deg, #0f2744 0%, #163559 45%, #0f766e 100%);
-    padding: 1.5rem;
+    padding: 1rem;
 }
 
 .login-card {
@@ -174,22 +241,33 @@ body {
     max-width: 420px;
     background: #fff;
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 1.5rem 1.5rem 1.25rem;
     box-shadow: 0 20px 50px rgba(0,0,0,.25);
 }
 
 .login-card h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: .25rem;
+    font-size: 1.45rem;
+    font-weight: 600;
+    margin-bottom: .15rem;
 }
 
 .table-roznamcha th {
-    font-size: .78rem;
+    font-size: .75rem;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: .03em;
     color: #64748b;
     white-space: nowrap;
+}
+
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.table-sticky thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+    box-shadow: 0 1px 0 #e2e8f0;
 }
 
 .totals-strip {
@@ -199,16 +277,22 @@ body {
     padding: .85rem 1rem;
 }
 
-.sidebar-toggle { display: none; }
+.sidebar-toggle { display: none; min-width: 42px; }
+
+.chart-wrap { position: relative; width: 100%; max-width: 100%; }
+
+.modal-dialog { margin: .75rem; }
 
 @media (max-width: 991.98px) {
     .sidebar {
         position: fixed;
         left: -280px;
         transition: left .2s ease;
+        height: 100vh;
+        box-shadow: none;
     }
-    .sidebar.show { left: 0; }
-    .sidebar-toggle { display: inline-flex; }
+    .sidebar.show { left: 0; box-shadow: 8px 0 24px rgba(0,0,0,.25); }
+    .sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; }
     .sidebar-backdrop {
         display: none;
         position: fixed;
@@ -217,10 +301,18 @@ body {
         z-index: 1035;
     }
     .sidebar-backdrop.show { display: block; }
+    .content { padding: .85rem; }
+    .panel-header .btn { width: auto; }
+}
+
+@media (max-width: 575.98px) {
+    .login-card { padding: 1.25rem 1rem; }
+    .stat-card .value { font-size: 1.2rem; }
+    .topbar { padding: .65rem .75rem; }
 }
 
 @media print {
-    .sidebar, .topbar, .no-print { display: none !important; }
+    .sidebar, .topbar, .no-print, .app-footer, .sidebar-backdrop { display: none !important; }
     .main-wrap { width: 100%; }
     .content { padding: 0; }
     .panel { box-shadow: none; border: none; }

@@ -49,8 +49,20 @@ class DashboardController extends Controller
             $day = $chartStart->copy()->addDays($i);
             $key = $day->toDateString();
             $labels[] = $day->format('d M');
-            $incomeSeries[] = (float) $daily->first(fn ($r) => $r->entry_date->toDateString() === $key && $r->type === Entry::TYPE_INCOME)?->total;
-            $expenseSeries[] = (float) $daily->first(fn ($r) => $r->entry_date->toDateString() === $key && $r->type === Entry::TYPE_EXPENSE)?->total;
+            $incomeSeries[] = (float) $daily->first(function ($r) use ($key) {
+                $date = $r->entry_date instanceof \Carbon\Carbon
+                    ? $r->entry_date->toDateString()
+                    : (string) $r->entry_date;
+
+                return $date === $key && $r->type === Entry::TYPE_INCOME;
+            })?->total;
+            $expenseSeries[] = (float) $daily->first(function ($r) use ($key) {
+                $date = $r->entry_date instanceof \Carbon\Carbon
+                    ? $r->entry_date->toDateString()
+                    : (string) $r->entry_date;
+
+                return $date === $key && $r->type === Entry::TYPE_EXPENSE;
+            })?->total;
         }
 
         $topCategories = Entry::query()

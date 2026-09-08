@@ -5,9 +5,10 @@
 @section('content')
 <div class="login-page">
     <div class="login-card">
-        <div class="mb-4">
-            <h1>Roznamcha ERP</h1>
-            <p class="text-muted mb-0">Sign in to manage daily Aamdan & Kharcha</p>
+        <div class="text-center mb-4">
+            <img src="{{ asset('images/albadar.png') }}" alt="Al Badar" class="brand-logo brand-logo-login">
+            <h1>Al Badar</h1>
+            <p class="text-muted mb-0">Roznamcha / ERP System</p>
         </div>
 
         @include('partials.alerts')
@@ -28,7 +29,9 @@
             </div>
             <button class="btn btn-accent btn-lg w-100">Login</button>
         </form>
-        <p class="text-muted small mt-4 mb-0 text-center">Default admin: admin@roznamcha.local / password</p>
+        <div class="text-center mt-4">
+            @include('partials.footer')
+        </div>
     </div>
 </div>
 @endsection

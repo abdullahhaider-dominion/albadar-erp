@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -27,17 +28,23 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in([User::ROLE_ADMIN, User::ROLE_EDITOR])],
         ]);
 
-        User::query()->create([
+        $user = User::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
             'role' => $data['role'],
             'active' => true,
         ]);
+
+        AuditLogger::activity('user_created', User::class, $user->id, [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+        ], $request);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -53,7 +60,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'role' => ['required', Rule::in([User::ROLE_ADMIN, User::ROLE_EDITOR])],
-            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'active' => ['nullable', 'boolean'],
         ]);
 
@@ -72,6 +79,14 @@ class UserController extends Controller
 
         $user->save();
 
+        AuditLogger::activity('user_updated', User::class, $user->id, [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'active' => $user->active,
+            'password_reset' => ! empty($data['password']),
+        ], $request);
+
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
@@ -85,6 +100,11 @@ class UserController extends Controller
         $user->save();
 
         $status = $user->active ? 'enabled' : 'disabled';
+
+        AuditLogger::activity('user_'.$status, User::class, $user->id, [
+            'name' => $user->name,
+            'active' => $user->active,
+        ]);
 
         return back()->with('success', "User {$status} successfully.");
     }
