@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExpenseCategory;
+use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -23,10 +24,14 @@ class ExpenseCategoryController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:expense_categories,name'],
         ]);
 
-        ExpenseCategory::query()->create([
+        $category = ExpenseCategory::query()->create([
             'name' => $data['name'],
             'active' => true,
         ]);
+
+        AuditLogger::activity('category_created', ExpenseCategory::class, $category->id, [
+            'name' => $category->name,
+        ], $request);
 
         return back()->with('success', 'Expense category added.');
     }
@@ -43,6 +48,11 @@ class ExpenseCategoryController extends Controller
             'active' => $request->boolean('active'),
         ]);
 
+        AuditLogger::activity('category_updated', ExpenseCategory::class, $category->id, [
+            'name' => $category->name,
+            'active' => $category->active,
+        ], $request);
+
         return back()->with('success', 'Expense category updated.');
     }
 
@@ -50,6 +60,11 @@ class ExpenseCategoryController extends Controller
     {
         $category->active = ! $category->active;
         $category->save();
+
+        AuditLogger::activity('category_toggled', ExpenseCategory::class, $category->id, [
+            'name' => $category->name,
+            'active' => $category->active,
+        ]);
 
         return back()->with('success', 'Expense category status updated.');
     }

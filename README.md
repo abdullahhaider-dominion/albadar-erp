@@ -1,8 +1,6 @@
-# Roznamcha ERP
+# Al Badar — Roznamcha / ERP System
 
-Small, practical daily bookkeeping ERP for Pakistani businesses.
-
-Tracks **Roznamcha**, **Aamdan / Income**, **Kharcha / Expense**, and **Daily Net Balance**.
+Daily bookkeeping for Aamdan (income), Kharcha (expense), and net balance.
 
 ## Stack
 
@@ -14,22 +12,21 @@ Tracks **Roznamcha**, **Aamdan / Income**, **Kharcha / Expense**, and **Daily Ne
 
 ```bash
 composer install
-cp .env.example .env   # if needed
+cp .env.example .env
 php artisan key:generate
-php artisan migrate:fresh --seed
+php artisan migrate
+php artisan db:seed
 php artisan serve
 ```
 
-Open http://localhost:8000
+Create the first admin user from the Users screen after an existing administrator logs in, or from `php artisan tinker` in a secure environment. Do not commit or display login credentials.
 
-### Default logins
+Production checklist:
 
-| Role   | Email / Username           | Password |
-|--------|----------------------------|----------|
-| Admin  | admin@roznamcha.local      | password |
-| Editor | editor@roznamcha.local     | password |
-
-Change these passwords after first login.
+- `APP_DEBUG=false`
+- `APP_ENV=production`
+- HTTPS with `SESSION_SECURE_COOKIE=true`
+- Keep regular database backups from Settings
 
 ## MySQL (optional)
 
@@ -39,38 +36,21 @@ In `.env`:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=roznamcha_erp
+DB_DATABASE=albadar_erp
 DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-Create the database, then run `php artisan migrate:fresh --seed`.
+Then run `php artisan migrate`.
 
-## Features (Phase 1)
+## Features
 
-- Login with hashed passwords & secure sessions
-- Roles: Admin / Editor (admin routes protected server-side)
-- Dashboard totals + date filters + income vs expense chart
-- Fast Add Aamdan / Add Kharcha forms
+- Al Badar branding with local logo
+- Login with hashed passwords and role-based access (Admin / Editor)
+- Dashboard totals, date filters, income vs expense chart
+- Fast Add Aamdan / Add Kharcha
 - Roznamcha ledger with filters, search, pagination
-- Totals on every report (Aamdan, Kharcha, Net Balance)
-- User management (create, disable, reset password, change role)
-- Expense category management
-- Print + CSV + Excel export
-- Settings (company name, allow editors to edit entries)
-- Database backup download (Admin)
-- Audit fields: created_by, updated_by, timestamps
-
-## Editor permissions
-
-Editors can login and add income/expense entries.
-
-Editors cannot delete entries, manage users/settings/categories, or access admin pages.
-
-Editing existing entries is off by default; Admin can enable it in Settings.
-
-## Navigation
-
-**Admin:** Dashboard · Roznamcha · Add Aamdan · Add Kharcha · Reports · Expense Categories · Users · Settings · Logout
-
-**Editor:** Dashboard · Roznamcha · Add Aamdan · Add Kharcha · Logout
+- Soft delete with restore
+- Full audit trail for create / edit / delete / restore
+- Print, CSV, and Excel export
+- Admin backup download

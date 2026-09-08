@@ -2,7 +2,7 @@
 
 @section('title', 'Settings')
 @section('page_title', 'Settings')
-@section('page_subtitle', 'Basic company preferences')
+@section('page_subtitle', 'Company preferences and data backup')
 
 @section('content')
 <div class="row g-3">
@@ -33,10 +33,18 @@
         <div class="panel">
             <div class="panel-header"><strong>Database Backup</strong></div>
             <div class="panel-body">
-                <p class="text-muted">Download a full backup of the Roznamcha database.</p>
-                <a href="{{ route('settings.backup') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-download"></i> Download Backup
-                </a>
+                <p class="text-muted">Download a full backup of the database. The file is generated on the server and sent as a download; database credentials are never shown.</p>
+                @if($lastBackupAt)
+                    <p class="small mb-3">Last backup: <strong>{{ \Carbon\Carbon::parse($lastBackupAt)->format('d M Y h:i A') }}</strong></p>
+                @else
+                    <p class="small mb-3 text-muted">No backup has been downloaded yet.</p>
+                @endif
+                <form method="POST" action="{{ route('settings.backup') }}">
+                    @csrf
+                    <button class="btn btn-outline-primary">
+                        <i class="bi bi-download"></i> Download Backup
+                    </button>
+                </form>
             </div>
         </div>
     </div>

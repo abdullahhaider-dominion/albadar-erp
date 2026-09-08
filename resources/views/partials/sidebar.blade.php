@@ -1,7 +1,8 @@
 <aside class="sidebar" id="appSidebar">
     <div class="sidebar-brand">
+        <img src="{{ asset('images/albadar.png') }}" alt="Al Badar" class="brand-logo">
         <div class="brand-title">{{ \App\Models\Setting::companyName() }}</div>
-        <div class="brand-sub">Roznamcha · Daily Cash Flow</div>
+        <div class="brand-sub">Roznamcha / ERP System</div>
     </div>
     <nav class="nav flex-column py-2">
         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
@@ -23,6 +24,9 @@
             <div class="nav-section">Admin</div>
             <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">
                 <i class="bi bi-bar-chart"></i> Reports
+            </a>
+            <a class="nav-link {{ request()->routeIs('audit.*') ? 'active' : '' }}" href="{{ route('audit.index') }}">
+                <i class="bi bi-clock-history"></i> Audit Log
             </a>
             <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}">
                 <i class="bi bi-tags"></i> Expense Categories

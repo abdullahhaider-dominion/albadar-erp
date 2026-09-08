@@ -22,7 +22,7 @@ class RoznamchaController extends Controller
         $expense = (clone $totalsQuery)->expense()->sum('amount');
 
         $entries = $query
-            ->with(['category', 'creator'])
+            ->with(['category', 'creator', 'auditLogs'])
             ->orderByDesc('entry_date')
             ->orderByDesc('id')
             ->paginate(25)
@@ -81,14 +81,14 @@ class RoznamchaController extends Controller
 
             foreach ($entries as $entry) {
                 fputcsv($out, [
-                    $entry->entry_date->format('Y-m-d'),
-                    $entry->isIncome() ? 'Income' : 'Expense',
-                    $entry->isExpense() ? ($entry->category?->name ?? '') : 'Aamdan',
-                    $entry->payment_method,
-                    $entry->party_name,
-                    $entry->reference,
-                    $entry->details,
-                    $entry->creator?->name,
+                    spreadsheet_cell($entry->entry_date->format('Y-m-d')),
+                    spreadsheet_cell($entry->isIncome() ? 'Income' : 'Expense'),
+                    spreadsheet_cell($entry->isExpense() ? ($entry->category?->name ?? '') : 'Aamdan'),
+                    spreadsheet_cell($entry->payment_method),
+                    spreadsheet_cell($entry->party_name),
+                    spreadsheet_cell($entry->reference),
+                    spreadsheet_cell($entry->details),
+                    spreadsheet_cell($entry->creator?->name),
                     number_format((float) $entry->amount, 2, '.', ''),
                 ]);
             }
@@ -114,14 +114,14 @@ class RoznamchaController extends Controller
         $rows = '';
         foreach ($entries as $entry) {
             $rows .= '<Row>'
-                .'<Cell><Data ss:Type="String">'.e($entry->entry_date->format('Y-m-d')).'</Data></Cell>'
-                .'<Cell><Data ss:Type="String">'.e($entry->isIncome() ? 'Income' : 'Expense').'</Data></Cell>'
-                .'<Cell><Data ss:Type="String">'.e($entry->isExpense() ? ($entry->category?->name ?? '') : 'Aamdan').'</Data></Cell>'
-                .'<Cell><Data ss:Type="String">'.e($entry->payment_method).'</Data></Cell>'
-                .'<Cell><Data ss:Type="String">'.e($entry->party_name).'</Data></Cell>'
-                .'<Cell><Data ss:Type="String">'.e($entry->reference).'</Data></Cell>'
-                .'<Cell><Data ss:Type="String">'.e($entry->details).'</Data></Cell>'
-                .'<Cell><Data ss:Type="String">'.e($entry->creator?->name).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->entry_date->format('Y-m-d'))).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->isIncome() ? 'Income' : 'Expense')).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->isExpense() ? ($entry->category?->name ?? '') : 'Aamdan')).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->payment_method)).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->party_name)).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->reference)).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->details)).'</Data></Cell>'
+                .'<Cell><Data ss:Type="String">'.e(spreadsheet_cell($entry->creator?->name)).'</Data></Cell>'
                 .'<Cell><Data ss:Type="Number">'.number_format((float) $entry->amount, 2, '.', '').'</Data></Cell>'
                 .'</Row>';
         }

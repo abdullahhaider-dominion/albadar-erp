@@ -55,6 +55,15 @@ class ReportController extends Controller
             ->limit(10)
             ->get();
 
+        $editedEntries = Entry::query()
+            ->where('is_edited', true)
+            ->whereDate('entry_date', '>=', $from->toDateString())
+            ->whereDate('entry_date', '<=', $to->toDateString())
+            ->with(['category', 'creator'])
+            ->orderByDesc('updated_at')
+            ->limit(15)
+            ->get();
+
         return view('reports.index', [
             'income' => $income,
             'expense' => $expense,
@@ -62,6 +71,7 @@ class ReportController extends Controller
             'daily' => $daily,
             'monthly' => $monthly,
             'topCategories' => $topCategories,
+            'editedEntries' => $editedEntries,
             'range' => $range,
             'from' => $from,
             'to' => $to,

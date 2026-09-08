@@ -39,8 +39,8 @@
         </div>
     </div>
     <div class="panel-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover table-roznamcha mb-0 align-middle">
+        <div class="table-responsive table-scroll">
+            <table class="table table-hover table-roznamcha table-sticky mb-0 align-middle">
                 <thead>
                 <tr>
                     <th>Date</th>
@@ -57,7 +57,10 @@
                 <tbody>
                 @forelse($entries as $entry)
                     <tr>
-                        <td>{{ $entry->entry_date->format('d M Y') }}</td>
+                        <td class="text-nowrap">
+                            {{ $entry->entry_date->format('d M Y') }}
+                            @include('partials.edited-badge', ['entry' => $entry])
+                        </td>
                         <td>
                             @if($entry->isIncome())
                                 <span class="badge badge-income">Income</span>
@@ -74,18 +77,14 @@
                                 <div class="small text-muted">Ref: {{ $entry->reference }}</div>
                             @endif
                         </td>
-                        <td>{{ $entry->creator?->name }}</td>
-                        <td class="text-end {{ $entry->isIncome() ? 'amount-pos' : 'amount-neg' }}">{{ pkr($entry->amount) }}</td>
+                        <td title="{{ $entry->creator?->email }}">{{ $entry->creator?->name }}</td>
+                        <td class="text-end text-nowrap {{ $entry->isIncome() ? 'amount-pos' : 'amount-neg' }}">{{ pkr($entry->amount) }}</td>
                         <td class="text-end no-print text-nowrap">
                             @if(auth()->user()->isAdmin() || \App\Models\Setting::allowEditorEdit())
                                 <a href="{{ route('entries.edit', $entry) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                             @endif
                             @if(auth()->user()->isAdmin())
-                                <form action="{{ route('entries.destroy', $entry) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this entry?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-delete-url="{{ route('entries.destroy', $entry) }}">Delete</button>
                             @endif
                         </td>
                     </tr>

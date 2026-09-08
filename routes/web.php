@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EntryController;
@@ -13,6 +14,9 @@ use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
+Route::get('/robots.txt', fn () => response("User-agent: *\nDisallow: /\n", 200, [
+    'Content-Type' => 'text/plain; charset=UTF-8',
+]));
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -36,9 +40,14 @@ Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
     Route::put('/entries/{entry}', [EntryController::class, 'update'])->name('entries.update');
 
     Route::middleware(EnsureAdmin::class)->group(function () {
+        Route::get('/entries/{entry}/history', [EntryController::class, 'history'])->name('entries.history');
         Route::delete('/entries/{entry}', [EntryController::class, 'destroy'])->name('entries.destroy');
+        Route::post('/entries/{id}/restore', [EntryController::class, 'restore'])->name('entries.restore');
 
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit.index');
+        Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show'])->name('audit.show');
 
         Route::get('/categories', [ExpenseCategoryController::class, 'index'])->name('categories.index');
         Route::post('/categories', [ExpenseCategoryController::class, 'store'])->name('categories.store');
@@ -54,6 +63,6 @@ Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
 
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-        Route::get('/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
+        Route::post('/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
     });
 });

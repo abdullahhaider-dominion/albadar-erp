@@ -2,7 +2,7 @@
 
 @section('title', 'Dashboard')
 @section('page_title', 'Dashboard')
-@section('page_subtitle', 'Aamdan, Kharcha & Net Balance overview')
+@section('page_subtitle', 'Aamdan, Kharcha & Net Balance')
 
 @section('content')
 <div class="panel mb-3 no-print">
@@ -39,7 +39,9 @@
                 <strong>Income vs Expense (Last 14 Days)</strong>
             </div>
             <div class="panel-body">
-                <canvas id="incomeExpenseChart" height="120"></canvas>
+                <div class="chart-wrap">
+                    <canvas id="incomeExpenseChart" height="120"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -73,7 +75,7 @@
 <div class="panel">
     <div class="panel-header">
         <strong>Recent Roznamcha Entries</strong>
-        <div class="d-flex gap-2 no-print">
+        <div class="d-flex flex-wrap gap-2 no-print">
             <a href="{{ route('entries.income.create') }}" class="btn btn-sm btn-success">+ Aamdan</a>
             <a href="{{ route('entries.expense.create') }}" class="btn btn-sm btn-danger">+ Kharcha</a>
             <a href="{{ route('roznamcha.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
@@ -97,7 +99,10 @@
                 <tbody>
                 @forelse($recent as $entry)
                     <tr>
-                        <td>{{ $entry->entry_date->format('d M Y') }}</td>
+                        <td>
+                            {{ $entry->entry_date->format('d M Y') }}
+                            @include('partials.edited-badge', ['entry' => $entry])
+                        </td>
                         <td>
                             @if($entry->isIncome())
                                 <span class="badge badge-income">Income</span>
@@ -110,7 +115,7 @@
                         <td>{{ $entry->party_name ?: '—' }}</td>
                         <td>{{ \Illuminate\Support\Str::limit($entry->details, 40) }}</td>
                         <td>{{ $entry->creator?->name }}</td>
-                        <td class="text-end {{ $entry->isIncome() ? 'amount-pos' : 'amount-neg' }}">{{ pkr($entry->amount) }}</td>
+                        <td class="text-end text-nowrap {{ $entry->isIncome() ? 'amount-pos' : 'amount-neg' }}">{{ pkr($entry->amount) }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="8" class="text-center text-muted py-4">No entries for this period. Add your first Aamdan or Kharcha.</td></tr>

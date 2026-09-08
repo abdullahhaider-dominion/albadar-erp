@@ -21,7 +21,7 @@
     @include('partials.totals')
 </div>
 
-<div class="d-flex gap-2 mb-3 no-print">
+<div class="d-flex flex-wrap gap-2 mb-3 no-print">
     <a href="{{ route('roznamcha.print', request()->query()) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-printer"></i> Print Roznamcha
     </a>
@@ -120,6 +120,43 @@
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel mt-3">
+    <div class="panel-header"><strong>Edited Entries in This Period</strong></div>
+    <div class="panel-body p-0">
+        <div class="table-responsive table-scroll">
+            <table class="table table-sm table-hover table-sticky mb-0 align-middle">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Party</th>
+                    <th>User</th>
+                    <th class="text-end">Amount</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @forelse($editedEntries as $entry)
+                    <tr>
+                        <td>
+                            {{ $entry->entry_date->format('d M Y') }}
+                            @include('partials.edited-badge', ['entry' => $entry])
+                        </td>
+                        <td>{{ $entry->isIncome() ? 'Income' : 'Expense' }}</td>
+                        <td>{{ $entry->party_name ?: '—' }}</td>
+                        <td>{{ $entry->creator?->name }}</td>
+                        <td class="text-end text-nowrap">{{ pkr($entry->amount) }}</td>
+                        <td><a href="{{ route('entries.edit', $entry) }}" class="small">View</a></td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" class="text-center text-muted py-3">No edited entries in this range.</td></tr>
+                @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

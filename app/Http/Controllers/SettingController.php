@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -17,6 +18,7 @@ class SettingController extends Controller
         return view('settings.index', [
             'companyName' => Setting::companyName(),
             'allowEditorEdit' => Setting::allowEditorEdit(),
+            'lastBackupAt' => Setting::get('last_backup_at'),
         ]);
     }
 
@@ -30,12 +32,20 @@ class SettingController extends Controller
         Setting::put('company_name', $data['company_name']);
         Setting::put('allow_editor_edit', $request->boolean('allow_editor_edit') ? '1' : '0');
 
+        AuditLogger::activity('settings_updated', Setting::class, null, [
+            'company_name' => $data['company_name'],
+            'allow_editor_edit' => $request->boolean('allow_editor_edit'),
+        ], $request);
+
         return back()->with('success', 'Settings saved successfully.');
     }
 
     public function backup(): BinaryFileResponse|RedirectResponse
     {
         $connection = config('database.default');
+        $stamp = now()->format('Y-m-d-His');
+        $backupDir = storage_path('app/backups');
+        File::ensureDirectoryExists($backupDir);
 
         if ($connection === 'sqlite') {
             $path = database_path('database.sqlite');
@@ -44,30 +54,40 @@ class SettingController extends Controller
                 return back()->withErrors(['backup' => 'SQLite database file not found.']);
             }
 
-            $name = 'roznamcha-backup-'.now()->format('Y-m-d-His').'.sqlite';
+            $filename = 'albadar-backup-'.$stamp.'.sqlite';
+            $temp = $backupDir.DIRECTORY_SEPARATOR.$filename;
+            File::copy($path, $temp);
 
-            return response()->download($path, $name);
+            Setting::put('last_backup_at', now()->toDateTimeString());
+            AuditLogger::activity('database_backup', null, null, ['file' => $filename]);
+
+            return response()->download($temp, $filename)->deleteFileAfterSend(true);
         }
 
-        // For MySQL: dump tables to a simple SQL file via PHP (no mysqldump dependency).
         try {
-            $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
-            $key = 'Tables_in_'.config('database.connections.mysql.database');
-            $sql = "-- Roznamcha ERP backup\n-- ".now()->toDateTimeString()."\n\n";
+            $database = (string) config('database.connections.mysql.database');
+            $tables = DB::select('SHOW TABLES');
+            $key = 'Tables_in_'.$database;
+            $sql = "-- Al Badar ERP backup\n-- ".$stamp."\n\nSET FOREIGN_KEY_CHECKS=0;\n\n";
 
             foreach ($tables as $table) {
-                $name = $table->$key;
-                $create = \Illuminate\Support\Facades\DB::select("SHOW CREATE TABLE `{$name}`")[0]->{'Create Table'};
+                $name = (string) $table->$key;
+
+                if (! preg_match('/^[A-Za-z0-9_]+$/', $name)) {
+                    continue;
+                }
+
+                $create = DB::select('SHOW CREATE TABLE `'.$name.'`')[0]->{'Create Table'};
                 $sql .= "DROP TABLE IF EXISTS `{$name}`;\n{$create};\n\n";
 
-                $rows = \Illuminate\Support\Facades\DB::table($name)->get();
+                $rows = DB::table($name)->get();
                 foreach ($rows as $row) {
                     $values = array_map(function ($v) {
                         if (is_null($v)) {
                             return 'NULL';
                         }
 
-                        return "'".str_replace("'", "''", (string) $v)."'";
+                        return "'".str_replace(["\\", "'"], ["\\\\", "''"], (string) $v)."'";
                     }, (array) $row);
 
                     $sql .= "INSERT INTO `{$name}` VALUES (".implode(',', $values).");\n";
@@ -75,13 +95,20 @@ class SettingController extends Controller
                 $sql .= "\n";
             }
 
-            $filename = 'roznamcha-backup-'.now()->format('Y-m-d-His').'.sql';
-            $temp = storage_path('app/'.$filename);
+            $sql .= "SET FOREIGN_KEY_CHECKS=1;\n";
+
+            $filename = 'albadar-backup-'.$stamp.'.sql';
+            $temp = $backupDir.DIRECTORY_SEPARATOR.$filename;
             File::put($temp, $sql);
+
+            Setting::put('last_backup_at', now()->toDateTimeString());
+            AuditLogger::activity('database_backup', null, null, ['file' => $filename]);
 
             return response()->download($temp, $filename)->deleteFileAfterSend(true);
         } catch (\Throwable $e) {
-            return back()->withErrors(['backup' => 'Backup failed: '.$e->getMessage()]);
+            report($e);
+
+            return back()->withErrors(['backup' => 'Backup failed. Please try again or contact support.']);
         }
     }
 }

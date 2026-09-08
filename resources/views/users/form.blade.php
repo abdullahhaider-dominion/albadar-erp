@@ -35,11 +35,11 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password {{ $user ? '(leave blank to keep)' : '' }}</label>
-                        <input type="password" name="password" class="form-control" {{ $user ? '' : 'required' }} minlength="6">
+                        <input type="password" name="password" class="form-control" {{ $user ? '' : 'required' }} minlength="8" autocomplete="new-password">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Confirm Password</label>
-                        <input type="password" name="password_confirmation" class="form-control" {{ $user ? '' : 'required' }} minlength="6">
+                        <input type="password" name="password_confirmation" class="form-control" {{ $user ? '' : 'required' }} minlength="8" autocomplete="new-password">
                     </div>
                     @if($user)
                         <div class="form-check mb-3">
